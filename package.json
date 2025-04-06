@@ -2,7 +2,7 @@
   "name": "lifesync",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://[YOUR_GITHUB_USERNAME].github.io/[YOUR_REPO_NAME]",
+  "homepage": ".",
   "engines": {
     "node": ">=14.0.0"
   },
@@ -29,13 +29,13 @@
   "scripts": {
     "test": "react-scripts test",
     "start": "node backend/server.js",
-    "build": "GENERATE_SOURCEMAP=false react-scripts build",
+    "build": "cross-env PUBLIC_URL=/ GENERATE_SOURCEMAP=false react-scripts build",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "set PORT=8080 && nodemon backend/server.js",
     "client": "react-scripts start",
     "vercel-build": "npm run build"
   },
-  "proxy": "http://localhost:5000",
+  "proxy": "https://lifesyncs.vercel.app",
   "eslintConfig": {
     "extends": [
       "react-app",
