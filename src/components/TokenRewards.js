@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 function TokenRewards() {
-  const [syncBalance, setSyncBalance] = useState(250); // Mock balance for demo
+  const [syncBalance] = useState(250); // Mock balance for demo
   const [isConnected, setIsConnected] = useState(false);
 
   const connectWallet = () => {
