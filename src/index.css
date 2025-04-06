@@ -46,9 +46,20 @@ code {
 
 /* Feature box animations */
 .feature-box {
-  animation: fadeInUp 0.6s ease-out forwards;
-  transition: all 0.3s ease-in-out;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.feature-box.animate-features {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.feature-box:nth-child(1).animate-features { transition-delay: 0.1s; }
+.feature-box:nth-child(2).animate-features { transition-delay: 0.2s; }
+.feature-box:nth-child(3).animate-features { transition-delay: 0.3s; }
+.feature-box:nth-child(4).animate-features { transition-delay: 0.4s; }
 
 .feature-box:hover {
   transform: translateY(-8px);
@@ -64,49 +75,3 @@ code {
 .feature-box svg {
   transition: all 0.3s ease-in-out;
 }
-
-/* Stagger animation delay for features */
-.feature-box:nth-child(1) { animation-delay: 0.1s; }
-.feature-box:nth-child(2) { animation-delay: 0.2s; }
-.feature-box:nth-child(3) { animation-delay: 0.3s; }
-.feature-box:nth-child(4) { animation-delay: 0.4s; }
-
-
-/* Animation keyframes */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Feature box animations */
-.feature-box {
-  animation: fadeInUp 0.6s ease-out forwards;
-  transition: all 0.3s ease-in-out;
-}
-
-.feature-box:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  background-color: white;
-}
-
-.feature-box:hover svg {
-  transform: scale(1.1);
-  color: #2563eb;
-}
-
-.feature-box svg {
-  transition: all 0.3s ease-in-out;
-}
-
-/* Stagger animation delay for features */
-.feature-box:nth-child(1) { animation-delay: 0.1s; }
-.feature-box:nth-child(2) { animation-delay: 0.2s; }
-.feature-box:nth-child(3) { animation-delay: 0.3s; }
-.feature-box:nth-child(4) { animation-delay: 0.4s; }

@@ -1,6 +1,32 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 function FeaturesSection() {
+  const featuresRef = useRef(null);
+
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-features');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, options);
+
+    const featureBoxes = document.querySelectorAll('.feature-box');
+    featureBoxes.forEach(box => observer.observe(box));
+
+    return () => {
+      featureBoxes.forEach(box => observer.unobserve(box));
+    };
+  }, []);
+
   const features = [
     {
       id: 1,
@@ -45,7 +71,7 @@ function FeaturesSection() {
   ];
 
   return (
-    <section id="features" className="py-20 bg-white">
+    <section id="features" className="py-20 bg-white" ref={featuresRef}>
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Powerful Features to Transform Your Life</h2>
@@ -56,7 +82,7 @@ function FeaturesSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature) => (
-            <div key={feature.id} className="feature-box bg-gray-50 rounded-xl p-8 shadow-sm hover:shadow-md transition duration-300">
+            <div key={feature.id} className="feature-box opacity-0 bg-gray-50 rounded-xl p-8 shadow-sm hover:shadow-md transition duration-300">
               <div className="h-12 w-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
                 {feature.icon}
               </div>
