@@ -97,9 +97,9 @@ function Footer() {
               &copy; {currentYear} LifeSync. All rights reserved.
             </p>
             <div className="flex space-x-6">
-              <a href="#" className="text-gray-400 hover:text-blue-400 text-sm transition duration-300">Privacy Policy</a>
-              <a href="#" className="text-gray-400 hover:text-blue-400 text-sm transition duration-300">Terms of Service</a>
-              <a href="#" className="text-gray-400 hover:text-blue-400 text-sm transition duration-300">Cookie Policy</a>
+              <a href="/privacy" className="text-gray-400 hover:text-blue-400 text-sm transition duration-300">Privacy Policy</a>
+              <a href="/terms" className="text-gray-400 hover:text-blue-400 text-sm transition duration-300">Terms of Service</a>
+              <a href="/cookies" className="text-gray-400 hover:text-blue-400 text-sm transition duration-300">Cookie Policy</a>
             </div>
           </div>
         </div>
