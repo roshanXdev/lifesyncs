@@ -1,0 +1,63 @@
+{
+  "name": "lifesync",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://[YOUR_GITHUB_USERNAME].github.io/[YOUR_REPO_NAME]",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "concurrently": "^8.0.1",
+    "nodemon": "^2.0.22",
+    "@openzeppelin/contracts": "^4.9.3",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "ethers": "^5.7.2",
+    "express": "^4.18.2",
+    "express-async-handler": "^1.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^5.5.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "test": "react-scripts test",
+    "start": "node backend/server.js",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "set PORT=8080 && nodemon backend/server.js",
+    "client": "react-scripts start",
+    "vercel-build": "npm run build"
+  },
+  "proxy": "http://localhost:5000",
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "nodemon": "^3.0.1",
+    "tailwindcss": "^3.3.3"
+  }
+}
