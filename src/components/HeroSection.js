@@ -22,6 +22,8 @@ function HeroSection() {
               </button>
             </div>
           </div>
+          
+          {/* Right side: Original Mockup Card */}
           <div className="md:w-1/2">
             <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md mx-auto transition-all duration-300 ease-in-out hover:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] hover:translate-y-[-8px] hover:bg-blue-50">
               <div className="flex items-center justify-between mb-6">

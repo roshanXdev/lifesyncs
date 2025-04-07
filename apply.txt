@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeSync Premium Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/apexcharts@3.35.3/dist/apexcharts.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.3/dist/apexcharts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --secondary: #10B981;
+            --accent: #7C3AED;
+            --dark: #1E293B;
+            --light: #F8FAFC;
+            --gray: #94A3B8;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #F1F5F9;
+            color: var(--dark);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        }
+        
+        .gradient-accent {
+            background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card {
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 30%;
+            background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.2));
+            transform: skewX(-15deg) translateX(10px);
+        }
+        
+        .chart-container {
+            height: 300px;
+            width: 100%;
+        }
+        
+        .progress-ring-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        .progress-ring-circle-bg {
+            fill: none;
+            stroke: #E2E8F0;
+            stroke-width: 8;
+        }
+        
+        .progress-ring-circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            padding: 3px 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+        }
+        
+        .pill-progress {
+            height: 10px;
+            border-radius: 10px;
+            background-color: #E2E8F0;
+            overflow: hidden;
+        }
+        
+        .pill-progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+        }
+        
+        .premium-tag {
+            background: linear-gradient(45deg, #F59E0B, #F97316);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .custom-tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .custom-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .tooltip-text {
+            visibility: hidden;
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 5px 10px;
+            border-radius: 6px;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s;
+            width: 200px;
+        }
+        
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--dark) transparent transparent transparent;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+        
+        /* Animation classes */
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .rotate-center {
+            animation: rotate 10s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Glowing effect for premium elements */
+        .premium-glow {
+            box-shadow: 0 0 15px rgba(123, 58, 237, 0.3);
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .premium-glow:hover {
+            box-shadow: 0 0 20px rgba(123, 58, 237, 0.5);
+        }
+        
+        /* Glass morphism effect */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header & Navigation -->
+    <header class="gradient-bg text-white py-4 px-6">
+        <div class="container mx-auto">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold">LifeSync</h1>
+                    <span class="ml-2 px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs font-semibold">PREMIUM</span>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <div class="relative">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span class="font-medium">Alex Johnson</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <nav class="bg-white shadow-md">
+        <div class="container mx-auto px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex space-x-8">
+                    <a href="#" class="text-primary font-semibold border-b-2 border-primary px-1 py-2">Dashboard</a>
+                    <a href="#" class="text-gray-600 hover:text-primary px-1 py-2">Analytics</a>
+                    <a href="#" class="text-gray-600 hover:text-primary px-1 py-2">Goal Tracking</a>
+                    <a href="#" class="text-gray-600 hover:text-primary px-1 py-2">Community</a>
+                    <a href="#" class="text-gray-600 hover:text-primary px-1 py-2">Marketplace</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <span class="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">
+                            <i class="fas fa-coins mr-1"></i> 2,450 SYNC
+                        </span>
+                    </div>
+                    <div class="relative">
+                        <button class="bg-accent hover:bg-opacity-90 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                            <i class="fas fa-crown mr-1"></i> Premium Options
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Dashboard Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Welcome Section -->
+        <section class="mb-10 fade-in">
+            <div class="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Welcome to your Premium Dashboard, Alex</h2>
+                    <p class="text-gray-600 mt-1">Here's your personalized AI-powered insights for October 12, 2023</p>
+                </div>
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 rounded-lg shadow-md">
+                    <div class="flex items-center">
+                        <div class="mr-4">
+                            <div class="text-sm font-medium opacity-80">Your Holistic Score</div>
+                            <div class="text-3xl font-bold">87/100</div>
+                        </div>
+                        <div class="w-16 h-16 relative">
+                            <svg class="progress-ring" width="60" height="60">
+                                <circle class="progress-ring-circle-bg" cx="30" cy="30" r="24"></circle>
+                                <circle class="progress-ring-circle" cx="30" cy="30" r="24" 
+                                    stroke="white" 
+                                    stroke-dasharray="150.8" 
+                                    stroke-dashoffset="19.6"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center text-xs font-bold">+12%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- AI Insight of the Day -->
+        <section class="mb-10 fade-in" style="animation-delay: 0.1s;">
+            <div class="gradient-accent text-white rounded-xl shadow-lg p-6 relative overflow-hidden premium-glow">
+                <div class="absolute top-0 right-0 mt-4 mr-4">
+                    <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-xs font-semibold">
+                        <i class="fas fa-robot mr-1"></i> AI PREMIUM INSIGHT
+                    </span>
+                </div>
+                <div class="flex">
+                    <div class="w-3/4 pr-6">
+                        <h3 class="text-xl font-bold mb-3">Today's Premium AI Recommendation</h3>
+                        <p class="mb-4">Based on your sleep patterns and upcoming calendar, you're projected to have optimal focus between 9-11 AM today. We've detected multiple high-priority tasks requiring creative thinking in your workspace. Consider blocking this time for your project proposal due Friday.</p>
+                        <div class="flex space-x-4">
+                            <button class="bg-white text-accent px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                                <i class="fas fa-calendar-plus mr-2"></i> Schedule Focus Time
+                            </button>
+                            <button class="bg-transparent border border-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                                <i class="fas fa-thumbs-up mr-2"></i> Helpful
+                            </button>
+                        </div>
+                    </div>
+                    <div class="w-1/4 flex justify-center items-center">
+                        <div class="w-24 h-24 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                            <i class="fas fa-brain text-4xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Stats Overview -->
+        <section class="mb-10 fade-in" style="animation-delay: 0.2s;">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Key Metrics Overview</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Wellness Score -->
+                <div class="stat-card bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium opacity-80">Wellness Score</p>
+                            <h4 class="text-3xl font-bold mt-1">92/100</h4>
+                            <p class="flex items-center mt-2 text-white text-opacity-90">
+                                <i class="fas fa-arrow-up mr-1"></i> 7% from last week
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                            <i class="fas fa-heartbeat text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="pill-progress">
+                            <div class="pill-progress-bar bg-white" style="width: 92%"></div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-xs text-white text-opacity-80">
+                            <span>Physical: 88%</span>
+                            <span>Mental: 95%</span>
+                            <span>Sleep: 94%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Health -->
+                <div class="stat-card bg-gradient-to-r from-green-500 to-green-600 text-white p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium opacity-80">Financial Health</p>
+                            <h4 class="text-3xl font-bold mt-1">78/100</h4>
+                            <p class="flex items-center mt-2 text-white text-opacity-90">
+                                <i class="fas fa-arrow-up mr-1"></i> 3% from last month
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="pill-progress">
+                            <div class="pill-progress-bar bg-white" style="width: 78%"></div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-xs text-white text-opacity-80">
+                            <span>Savings: 72%</span>
+                            <span>Budget: 85%</span>
+                            <span>Debt: 76%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Productivity Score -->
+                <div class="stat-card bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium opacity-80">Productivity Score</p>
+                            <h4 class="text-3xl font-bold mt-1">85/100</h4>
+                            <p class="flex items-center mt-2 text-white text-opacity-90">
+                                <i class="fas fa-arrow-up mr-1"></i> 12% from last week
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                            <i class="fas fa-tasks text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="pill-progress">
+                            <div class="pill-progress-bar bg-white" style="width: 85%"></div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-xs text-white text-opacity-80">
+                            <span>Focus: 82%</span>
+                            <span>Efficiency: 87%</span>
+                            <span>Goals: 90%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Main Dashboard Sections -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+            <!-- Left Column -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Wellness Analytics -->
+                <section class="dashboard-card p-6 fade-in" style="animation-delay: 0.3s;">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Wellness Analytics</h3>
+                        <div class="flex items-center">
+                            <span class="premium-tag mr-3">PREMIUM</span>
+                            <div class="custom-tooltip">
+                                <i class="fas fa-info-circle text-gray-400"></i>
+                                <span class="tooltip-text">Advanced wellness metrics with AI-powered insights and predictions</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Weekly Activity Overview</span>
+                            <span class="text-sm text-primary font-medium">15% above your average</span>
+                        </div>
+                        <div class="chart-container" id="activityChart"></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="p-4 rounded-lg bg-blue-50">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs text-gray-500">Sleep Quality</p>
+                                    <p class="text-lg font-bold text-gray-800">86%</p>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-moon text-blue-500"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">7.4 hrs avg | Deep sleep: 1.8 hrs</p>
+                        </div>
+                        
+                        <div class="p-4 rounded-lg bg-green-50">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs text-gray-500">Physical Activity</p>
+                                    <p class="text-lg font-bold text-gray-800">8,742</p>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                                    <i class="fas fa-walking text-green-500"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">steps today | Goal: 10,000</p>
+                        </div>
+                        
+                        <div class="p-4 rounded-lg bg-purple-50">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs text-gray-500">Stress Level</p>
+                                    <p class="text-lg font-bold text-gray-800">Low</p>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+                                    <i class="fas fa-brain text-purple-500"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">HRV: 68ms | 12% better than avg</p>
+                        </div>
+                        
+                        <div class="p-4 rounded-lg bg-yellow-50">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs text-gray-500">Nutrition</p>
+                                    <p class="text-lg font-bold text-gray-800">83%</p>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
+                                    <i class="fas fa-apple-alt text-yellow-500"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">1,850 cal | Protein: 95g</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 border border-blue-200 rounded-lg bg-blue-50">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-lightbulb text-blue-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">AI Wellness Recommendation</h4>
+                                <p class="text-sm text-gray-600 mt-1">Your sleep patterns show you could benefit from going to bed 30 minutes earlier. Our analysis indicates this would improve your morning focus by approximately 22% based on your personal data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Financial Insights -->
+                <section class="dashboard-card p-6 fade-in" style="animation-delay: 0.4s;">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Financial Insights</h3>
+                        <div class="flex items-center">
+                            <span class="premium-tag mr-3">PREMIUM</span>
+                            <div class="custom-tooltip">
+                                <i class="fas fa-info-circle text-gray-400"></i>
+                                <span class="tooltip-text">Advanced financial analysis and AI-driven recommendations for optimal wealth management</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Monthly Expenditure & Savings</span>
+                            <span class="text-sm text-primary font-medium">Last 6 months</span>
+                        </div>
+                        <div class="chart-container" id="financialChart"></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="p-4 rounded-lg bg-white border border-gray-200">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-2">Budget Allocation</h4>
+                            <div class="space-y-2">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span>Housing</span>
+                                        <span>35%</span>
+                                    </div>
+                                    <div class="pill-progress">
+                                        <div class="pill-progress-bar bg-blue-500" style="width: 35%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span>Food & Dining</span>
+                                        <span>18%</span>
+                                    </div>
+                                    <div class="pill-progress">
+                                        <div class="pill-progress-bar bg-green-500" style="width: 18%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span>Transportation</span>
+                                        <span>12%</span>
+                                    </div>
+                                    <div class="pill-progress">
+                                        <div class="pill-progress-bar bg-yellow-500" style="width: 12%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span>Entertainment</span>
+                                        <span>8%</span>
+                                    </div>
+                                    <div class="pill-progress">
+                                        <div class="pill-progress-bar bg-purple-500" style="width: 8%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span>Savings</span>
+                                        <span>22%</span>
+                                    </div>
+                                    <div class="pill-progress">
+                                        <div class="pill-progress-bar bg-indigo-500" style="width: 22%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span>Other</span>
+                                        <span>5%</span>
+                                    </div>
+                                    <div class="pill-progress">
+                                        <div class="pill-progress-bar bg-gray-500" style="width: 5%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 rounded-lg bg-white border border-gray-200">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-2">Investment Portfolio</h4>
+                            <div class="chart-container h-48" id="investmentChart"></div>
+                            <div class="flex justify-between text-xs mt-2 text-gray-500">
+                                <span>Total: $85,320</span>
+                                <span>YTD Return: +12.4%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border border-green-200 rounded-lg bg-green-50">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-chart-pie text-green-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">AI Financial Recommendation</h4>
+                                <p class="text-sm text-gray-600 mt-1">Based on your spending patterns, you could increase your savings by an additional $320/month by optimizing your subscription services. We've identified 3 overlapping services you might consider consolidating.</p>
+                                <button class="mt-2 text-sm text-green-600 font-medium">View Detailed Analysis</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Productivity & Goal Tracking -->
+                <section class="dashboard-card p-6 fade-in" style="animation-delay: 0.5s;">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Productivity & Goal Tracking</h3>
+                        <div class="flex items-center">
+                            <span class="premium-tag mr-3">PREMIUM</span>
+                            <div class="custom-tooltip">
+                                <i class="fas fa-info-circle text-gray-400"></i>
+                                <span class="tooltip-text">Advanced goal tracking with predictive completion estimates and optimization suggestions</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Current Goals Progress</h4>
+                            <div class="space-y-4">
+                                <div class="p-4 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h5 class="font-medium">Complete Project Proposal</h5>
+                                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Work</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-full mr-4">
+                                            <div class="pill-progress">
+                                                <div class="pill-progress-bar bg-blue-500" style="width: 65%"></div>
+                                            </div>
+                                        </div>
+                                        <span class="text-sm font-medium">65%</span>
+                                    </div>
+                                    <div class="flex justify-between mt-2 text-xs text-gray-500">
+                                        <span>Due: Oct 15, 2023</span>
+                                        <span class="text-green-600">On track</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-4 rounded-lg border border-gray-200 hover:border-green-300 transition-colors">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h5 class="font-medium">Exercise 3x Per Week</h5>
+                                        <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Health</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-full mr-4">
+                                            <div class="pill-progress">
+                                                <div class="pill-progress-bar bg-green-500" style="width: 75%"></div>
+                                            </div>
+                                        </div>
+                                        <span class="text-sm font-medium">75%</span>
+                                    </div>
+                                    <div class="flex justify-between mt-2 text-xs text-gray-500">
+                                        <span>2/3 sessions completed</span>
+                                        <span class="text-green-600">On track</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-4 rounded-lg border border-gray-200 hover:border-purple-300 transition-colors">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h5 class="font-medium">Read 2 Books This Month</h5>
+                                        <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Personal</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-full mr-4">
+                                            <div class="pill-progress">
+                                                <div class="pill-progress-bar bg-purple-500" style="width: 50%"></div>
+                                            </div>
+                                        </div>
+                                        <span class="text-sm font-medium">50%</span>
+                                    </div>
+                                    <div class="flex justify-between mt-2 text-xs text-gray-500">
+                                        <span>1/2 books completed</span>
+                                        <span class="text-yellow-600">Needs attention</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Productivity Analysis</h4>
+                            <div class="chart-container" id="productivityChart"></div>
+                            <div class="grid grid-cols-3 gap-2 mt-3">
+                                <div class="p-3 bg-gray-50 rounded-lg text-center">
+                                    <p class="text-xs text-gray-500">Focus Time</p>
+                                    <p class="text-lg font-semibold text-gray-800">4.2 hrs</p>
+                                    <p class="text-xs text-green-600">+18%</p>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg text-center">
+                                    <p class="text-xs text-gray-500">Tasks Completed</p>
+                                    <p class="text-lg font-semibold text-gray-800">12/15</p>
+                                    <p class="text-xs text-green-600">80%</p>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg text-center">
+                                    <p class="text-xs text-gray-500">Flow State</p>
+                                    <p class="text-lg font-semibold text-gray-800">2.5 hrs</p>
+                                    <p class="text-xs text-green-600">+25%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border border-purple-200 rounded-lg bg-purple-50">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-bullseye text-purple-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">AI Productivity Recommendation</h4>
+                                <p class="text-sm text-gray-600 mt-1">Your data shows you're most productive between 10 AM - 12 PM. Consider scheduling your most complex tasks during this window. We've identified that you achieve 27% higher completion rates during this time.</p>
+                                <button class="mt-2 text-sm text-purple-600 font-medium">View Detailed Analysis</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Right Column -->
+            <div class="space-y-8">
+                <!-- User Profile & Streaks -->
+                <section class="dashboard-card p-6 fade-in" style="animation-delay: 0.3s;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-gray-800">Your Profile</h3>
+                        <button class="text-primary hover:text-primary-dark">
+                            <i class="fas fa-sliders-h"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center mb-4">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold">
+                            AJ
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="font-semibold text-gray-800">Alex Johnson</h4>
+                            <p class="text-sm text-gray-500">Premium Member</p>
+                            <div class="flex items-center mt-1">
+                                <i class="fas fa-medal text-yellow-500 mr-1"></i>
+                                <span class="text-xs text-gray-500">Level 7 Achiever</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="py-2 px-4 bg-gray-50 rounded-lg mb-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium">Current Streak</span>
+                            <span class="text-sm font-bold text-primary">42 days</span>
+                        </div>
+                        <div class="flex mt-2">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2.5 rounded-full" style="width: 70%"></div>
+                            </div>
+                            <span class="ml-2 text-xs text-gray-500">70% to next level</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-700 mb-2">Weekly Activity</h4>
+                        <div class="grid grid-cols-7 gap-1">
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs text-gray-500">M</span>
+                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mt-1">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs text-gray-500">T</span>
+                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mt-1">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs text-gray-500">W</span>
+                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mt-1">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs text-gray-500">T</span>
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white flex items-center justify-center mt-1">
+                                    <span class="text-xs font-bold">T</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs text-gray-500">F</span>
+                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mt-1">
+                                    <span class="text-xs text-gray-400">F</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs text-gray-500">S</span>
+                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mt-1">
+                                    <span class="text-xs text-gray-400">S</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs text-gray-500">S</span>
+                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mt-1">
+                                    <span class="text-xs text-gray-400">S</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- SYNC Token Activity -->
+                <section class="dashboard-card p-6 fade-in" style="animation-delay: 0.4s;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-gray-800">SYNC Token Activity</h3>
+                        <div class="custom-tooltip">
+                            <i class="fas fa-info-circle text-gray-400"></i>
+                            <span class="tooltip-text">Earn and manage SYNC tokens through platform engagement</span>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg mb-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-xs text-white text-opacity-80">Current Balance</p>
+                                <p class="text-2xl font-bold">2,450 SYNC</p>
+                            </div>
+                            <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-coins text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center text-sm">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            <span>+350 this week</span>
+                        </div>
+                    </div>
+                    
+                    <h4 class="text-sm font-semibold text-gray-700 mb-2">Recent Transactions</h4>
+                    <div class="space-y-3 mb-4">
+                        <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-plus text-green-500 text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">Completed Daily Goal</p>
+                                    <p class="text-xs text-gray-500">Oct 12, 2023</p>
+                                </div>
+                            </div>
+                            <span class="text-sm font-medium text-green-600">+50 SYNC</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-plus text-green-500 text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">Community Contribution</p>
+                                    <p class="text-xs text-gray-500">Oct 11, 2023</p>
+                                </div>
+                            </div>
+                            <span class="text-sm font-medium text-green-600">+75 SYNC</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-minus text-red-500 text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">Wellness Consultation</p>
+                                    <p class="text-xs text-gray-500">Oct 10, 2023</p>
+                                </div>
+                            </div>
+                            <span class="text-sm font-medium text-red-600">-750 SYNC</span>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full py-2 px-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg text-sm font-medium">
+                        View All Transactions
+                    </button>
+                </section>
+                
+                <!-- Premium Community Hub -->
+                <section class="dashboard-card p-6 fade-in" style="animation-delay: 0.5s;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-gray-800">Premium Community</h3>
+                        <span class="premium-tag">EXCLUSIVE</span>
+                    </div>
+                    
+                    <div class="space-y-4 mb-4">
+                        <div class="p-3 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                        <i class="fas fa-users text-blue-500"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-medium">Executive Wellness Circle</h4>
+                                        <p class="text-xs text-gray-500">12 members active now</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">New</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-2">Connect with high-achievers focused on optimal wellness and productivity balance.</p>
+                            <button class="mt-2 text-xs text-blue-600 font-medium">Join Discussion</button>
+                        </div>
+                        
+                        <div class="p-3 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                                        <i class="fas fa-calendar-alt text-purple-500"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-medium">VIP Webinar: Financial Freedom</h4>
+                                        <p class="text-xs text-gray-500">Oct 15, 2023 • 7:00 PM</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">5 spots</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-2">Exclusive session with renowned financial expert Dr. Sarah Chen on building sustainable wealth.</p>
+                            <button class="mt-2 text-xs text-purple-600 font-medium">Reserve Spot</button>
+                        </div>
+                        
+                        <div class="p-3 border border-gray-200 rounded-lg hover:border-green-300 transition-colors">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                        <i class="fas fa-trophy text-green-500"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-medium">Premium Challenge: October Focus</h4>
+                                        <p class="text-xs text-gray-500">42 members participating</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Active</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-2">Join the 21-day challenge to master deep work techniques with exclusive coaching and accountability partners.</p>
+                            <button class="mt-2 text-xs text-green-600 font-medium">Join Challenge</button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                        <h4 class="text-sm font-medium text-indigo-700">Premium Member Insight</h4>
+                        <p class="text-xs text-gray-600 mt-1">Members who regularly participate in community challenges see a 43% higher achievement rate on their personal goals.</p>
+                    </div>
+                </section>
+                
+                <!-- Premium Resources -->
+                <section class="dashboard-card p-6 fade-in" style="animation-delay: 0.6s;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-gray-800">Premium Resources</h3>
+                        <span class="premium-tag">EXCLUSIVE</span>
+                    </div>
+                    
+                    <div class="space-y-3 mb-4">
+                        <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-book text-blue-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium">Advanced Sleep Optimization Guide</h4>
+                                <p class="text-xs text-gray-500">PDF • 28 pages</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-all">
+                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-video text-green-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium">Wealth Building Masterclass</h4>
+                                <p class="text-xs text-gray-500">Video Series • 5 episodes</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-all">
+                            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-clipboard-list text-purple-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium">Executive Productivity Templates</h4>
+                                <p class="text-xs text-gray-500">Template Pack • 12 items</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full py-2 px-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg text-sm font-medium">
+                        Explore All Premium Resources
+                    </button>
+                </section>
+            </div>
+        </div>
+        
+        <!-- Premium AI Predictive Analytics -->
+        <section class="dashboard-card p-6 mb-10 fade-in" style="animation-delay: 0.7s;">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">AI Predictive Analytics</h3>
+                <div class="flex items-center">
+                    <span class="premium-tag mr-3">PREMIUM</span>
+                    <div class="custom-tooltip">
+                        <i class="fas fa-info-circle text-gray-400"></i>
+                        <span class="tooltip-text">Advanced AI-powered predictions based on your historical data and trends</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-5 rounded-xl gradient-bg text-white premium-glow">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="font-semibold">Wellness Projection</h4>
+                            <p class="text-sm opacity-90">Next 30 Days</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                    </div>
+                    <div class="chart-container h-40" id="wellnessPredictionChart"></div>
+                    <div class="mt-2">
+                        <p class="text-sm">AI Prediction: <span class="font-medium">Your overall wellness score is likely to improve by 8% if current habits are maintained.</span></p>
+                    </div>
+                </div>
+                
+                <div class="p-5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white premium-glow">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="font-semibold">Financial Projection</h4>
+                            <p class="text-sm opacity-90">Next 90 Days</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="chart-container h-40" id="financialPredictionChart"></div>
+                    <div class="mt-2">
+                        <p class="text-sm">AI Prediction: <span class="font-medium">You're projected to increase savings by 12% with your current financial strategy.</span></p>
+                    </div>
+                </div>
+                
+                <div class="p-5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white premium-glow">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="font-semibold">Productivity Projection</h4>
+                            <p class="text-sm opacity-90">Next 30 Days</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                    </div>
+                    <div class="chart-container h-40" id="productivityPredictionChart"></div>
+                    <div class="mt-2">
+                        <p class="text-sm">AI Prediction: <span class="font-medium">Implementing suggested focus techniques could increase your productivity by up to 15%.</span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-6 md:mb-0">
+                    <h2 class="text-2xl font-bold mb-4">LifeSync</h2>
+                    <p class="text-gray-400 max-w-md">A comprehensive platform that helps you manage various aspects of your life through AI-powered recommendations, tokenized rewards, and community features.</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">Platform</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white">Features</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">AI Insights</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Rewards</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Marketplace</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Community</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">Company</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white">About Us</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Careers</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Blog</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Press</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">Resources</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white">Help Center</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Documentation</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">API</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400">© 2023 LifeSync. All rights reserved.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-white">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-white">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Initialize charts when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Activity Chart
+            var activityOptions = {
+                series: [{
+                    name: 'Activity Score',
+                    data: [68, 72, 80, 76, 85, 90, 87]
+                }],
+                chart: {
+                    height: 250,
+                    type: 'area',
+                    toolbar: {
+                        show: false
+                    },
+                    fontFamily: 'Montserrat, sans-serif',
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                    colors: ['#3B82F6']
+                },
+                xaxis: {
+                    categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                },
+                tooltip: {
+                    theme: 'dark'
+                },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.7,
+                        opacityTo: 0.2,
+                        stops: [0, 90, 100]
+                    },
+                    colors: ['#3B82F6']
+                },
+                markers: {
+                    size: 4,
+                    colors: ['#fff'],
+                    strokeColors: '#3B82F6',
+                    strokeWidth: 2,
+                    hover: {
+                        size: 7,
+                    }
+                },
+                grid: {
+                    borderColor: '#f1f1f1',
+                }
+            };
+
+            var activityChart = new ApexCharts(document.querySelector("#activityChart"), activityOptions);
+            activityChart.render();
+            
+            // Financial Chart
+            var financialOptions = {
+                series: [{
+                    name: 'Expenses',
+                    type: 'column',
+                    data: [3200, 3100, 2950, 3080, 2800, 2650]
+                }, {
+                    name: 'Savings',
+                    type: 'column',
+                    data: [800, 850, 900, 950, 1050, 1200]
+                }, {
+                    name: 'Savings Rate',
+                    type: 'line',
+                    data: [20, 21.5, 23.4, 23.6, 27.3, 31.2]
+                }],
+                chart: {
+                    height: 250,
+                    type: 'line',
+                    stacked: false,
+                    toolbar: {
+                        show: false
+                    },
+                    fontFamily: 'Montserrat, sans-serif',
+                },
+                stroke: {
+                    width: [0, 0, 3],
+                    curve: 'smooth'
+                },
+                plotOptions: {
+                    bar: {
+                        columnWidth: '60%',
+                        endingShape: 'rounded'
+                    },
+                },
+                fill: {
+                    opacity: [0.85, 0.85, 1],
+                    gradient: {
+                        inverseColors: false,
+                        shade: 'light',
+                        type: "vertical",
+                        opacityFrom: 0.85,
+                        opacityTo: 0.55,
+                        stops: [0, 100, 100, 100]
+                    }
+                },
+                markers: {
+                    size: 0
+                },
+                xaxis: {
+                    categories: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+                },
+                yaxis: [{
+                    title: {
+                        text: 'Amount ($)',
+                    },
+                }, {
+                    opposite: true,
+                    title: {
+                        text: 'Savings Rate (%)'
+                    }
+                }],
+                tooltip: {
+                    shared: true,
+                    intersect: false,
+                    theme: 'dark'
+                },
+                colors: ['#94A3B8', '#10B981', '#3B82F6']
+            };
+
+            var financialChart = new ApexCharts(document.querySelector("#financialChart"), financialOptions);
+            financialChart.render();
+            
+            // Investment Portfolio Chart
+            var investmentOptions = {
+                series: [40, 25, 20, 10, 5],
+                chart: {
+                    type: 'donut',
+                    height: '100%',
+                    fontFamily: 'Montserrat, sans-serif',
+                },
+                labels: ['Stocks', 'ETFs', 'Bonds', 'Real Estate', 'Crypto'],
+                colors: ['#3B82F6', '#10B981', '#F59E0B', '#6D28D9', '#EF4444'],
+                legend: {
+                    position: 'bottom',
+                    fontSize: '12px',
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                tooltip: {
+                    theme: 'dark'
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '65%',
+                            labels: {
+                                show: true,
+                                total: {
+                                    show: true,
+                                    label: 'Total',
+                                    formatter: function (w) {
+                                        return '$85,320'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var investmentChart = new ApexCharts(document.querySelector("#investmentChart"), investmentOptions);
+            investmentChart.render();
+            
+            // Productivity Chart
+            var productivityOptions = {
+                series: [{
+                    name: 'Productivity',
+                    data: [75, 65, 80, 85, 70, 90, 82]
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 220,
+                    toolbar: {
+                        show: false
+                    },
+                    fontFamily: 'Montserrat, sans-serif',
+                },
+                plotOptions: {
+                    bar: {
+                        borderRadius: 4,
+                        columnWidth: '50%',
+                        distributed: true,
+                    }
+                },
+                colors: ['#3B82F6', '#10B981', '#F59E0B', '#6D28D9', '#EF4444', '#3B82F6', '#10B981'],
+                dataLabels: {
+                    enabled: false
+                },
+                legend: {
+                    show: false
+                },
+                xaxis: {
+                    categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    labels: {
+                        style: {
+                            fontSize: '12px'
+                        }
+                    }
+                },
+                yaxis: {
+                    max: 100
+                },
+                tooltip: {
+                    theme: 'dark'
+                }
+            };
+
+            var productivityChart = new ApexCharts(document.querySelector("#productivityChart"), productivityOptions);
+            productivityChart.render();
+            
+            // Wellness Prediction Chart
+            var wellnessPredictionOptions = {
+                series: [{
+                    name: 'Historical',
+                    data: [76, 78, 80, 82, 78, 84],
+                    type: 'line'
+                }, {
+                    name: 'Predicted',
+                    data: [null, null, null, null, null, 84, 86, 88, 90, 92],
+                    type: 'line',
+                    dashArray: 5
+                }],
+                chart: {
+                    height: 150,
+                    type: 'line',
+                    toolbar: {
+                        show: false
+                    },
+                    fontFamily: 'Montserrat, sans-serif',
+                    background: 'transparent'
+                },
+                colors: ['#fff', '#fff'],
+                stroke: {
+                    width: [3, 3],
+                    curve: 'smooth'
+                },
+                xaxis: {
+                    type: 'category',
+                    categories: ['Sep 7', 'Sep 14', 'Sep 21', 'Sep 28', 'Oct 5', 'Oct 12', 'Oct 19', 'Oct 26', 'Nov 2', 'Nov 9'],
+                    labels: {
+                        style: {
+                            colors: '#fff'
+                        }
+                    },
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    }
+                },
+                yaxis: {
+                    min: 70,
+                    max: 100,
+                    labels: {
+                        style: {
+                            colors: '#fff'
+                        }
+                    }
+                },
+                grid: {
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    row: {
+                        colors: ['transparent', 'transparent'],
+                        opacity: 0.2
+                    },
+                    column: {
+                        colors: ['transparent', 'transparent']
+                    },
+                    padding: {
+                        bottom: 0
+                    }
+                },
+                markers: {
+                    size: 4
+                },
+                legend: {
+                    show: false
+                },
+                tooltip: {
+                    theme: 'dark'
+                },
+                annotations: {
+                    xaxis: [{
+                        x: 'Oct 12',
+                        borderColor: '#fff',
+                        label: {
+                            borderColor: '#fff',
+                            style: {
+                                color: '#000',
+                                background: '#fff'
+                            },
+                            text: 'Today'
+                        }
+                    }]
+                }
+            };
+
+            var wellnessPredictionChart = new ApexCharts(document.querySelector("#wellnessPredictionChart"), wellnessPredictionOptions);
+            wellnessPredictionChart.render();
+            
+            // Financial Prediction Chart
+            var financialPredictionOptions = {
+                series: [{
+                    name: 'Savings',
+                    data: [4200, 4500, 4800, 5100, 5400, 5800],
+                    type: 'column'
+                }, {
+                    name: 'Predicted',
+                    data: [null, null, null, null, null, 5800, 6200, 6600, 7000],
+                    type: 'line',
+                    dashArray: 5
+                }],
+                chart: {
+                    height: 150,
+                    type: 'line',
+                    toolbar: {
+                        show: false
+                    },
+                    fontFamily: 'Montserrat, sans-serif',
+                    background: 'transparent'
+                },
+                colors: ['rgba(255, 255, 255, 0.7)', '#fff'],
+                stroke: {
+                    width: [0, 3],
+                    curve: 'smooth'
+                },
+                plotOptions: {
+                    bar: {
+                        columnWidth: '60%',
+                        borderRadius: 3
+                    }
+                },
+                xaxis: {
+                    type: 'category',
+                    categories: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+                    labels: {
+                        style: {
+                            colors: '#fff'
+                        }
+                    },
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    }
+                },
+                yaxis: {
+                    labels: {
+                        style: {
+                            colors: '#fff'
+                        }
+                    }
+                },
+                grid: {
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    row: {
+                        colors: ['transparent', 'transparent'],
+                        opacity: 0.2
+                    },
+                    column: {
+                        colors: ['transparent', 'transparent']
+                    },
+                    padding: {
+                        bottom: 0
+                    }
+                },
+                markers: {
+                    size: 4
+                },
+                legend: {
+                    show: false
+                },
+                tooltip: {
+                    theme: 'dark'
+                },
+                annotations: {
+                    xaxis: [{
+                        x: 'Oct',
+                        borderColor: '#fff',
+                        label: {
+                            borderColor: '#fff',
+                            style: {
+                                color: '#000',
+                                background: '#fff'
+                            },
+                            text: 'Today'
+                        }
+                    }]
+                }
+            };
+
+            var financialPredictionChart = new ApexCharts(document.querySelector("#financialPredictionChart"), financialPredictionOptions);
+            financialPredictionChart.render();
+            
+            // Productivity Prediction Chart
+            var productivityPredictionOptions = {
+                series: [{
+                    name: 'Productivity',
+                    data: [70, 75, 72, 80, 85, 82],
+                }, {
+                    name: 'Predicted',
+                    data: [null, null, null, null, null, 82, 88, 92, 95, 97],
+                    dashArray: 5
+                }],
+                chart: {
+                    height: 150,
+                    type: 'line',
+                    toolbar: {
+                        show: false
+                    },
+                    fontFamily: 'Montserrat, sans-serif',
+                    background: 'transparent'
+                },
+                colors: ['#fff', '#fff'],
+                stroke: {
+                    width: 3,
+                    curve: 'smooth'
+                },
+                xaxis: {
+                    type: 'category',
+                    categories: ['Sep 7', 'Sep 14', 'Sep 21', 'Sep 28', 'Oct 5', 'Oct 12', 'Oct 19', 'Oct 26', 'Nov 2', 'Nov 9'],
+                    labels: {
+                        style: {
+                            colors: '#fff'
+                        }
+                    },
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    }
+                },
+                yaxis: {
+                    min: 65,
+                    max: 100,
+                    labels: {
+                        style: {
+                            colors: '#fff'
+                        }
+                    }
+                },
+                grid: {
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    row: {
+                        colors: ['transparent', 'transparent'],
+                        opacity: 0.2
+                    },
+                    column: {
+                        colors: ['transparent', 'transparent']
+                    },
+                    padding: {
+                        bottom: 0
+                    }
+                },
+                markers: {
+                    size: 4
+                },
+                legend: {
+                    show: false
+                },
+                tooltip: {
+                    theme: 'dark'
+                },
+                annotations: {
+                    xaxis: [{
+                        x: 'Oct 12',
+                        borderColor: '#fff',
+                        label: {
+                            borderColor: '#fff',
+                            style: {
+                                color: '#000',
+                                background: '#fff'
+                            },
+                            text: 'Today'
+                        }
+                    }]
+                }
+            };
+
+            var productivityPredictionChart = new ApexCharts(document.querySelector("#productivityPredictionChart"), productivityPredictionOptions);
+            productivityPredictionChart.render();
+        });
+    </script>
+</body>
+</html>

@@ -67,9 +67,13 @@ function Marketplace() {
     : marketplaceItems.filter(item => item.category === activeCategory);
   
   const purchaseItem = (item) => {
-    // This would be replaced with actual purchase logic
-    console.log(`Purchasing ${item.title}...`);
-    alert(`This would initiate the purchase of ${item.title} for ${item.price} SYNC tokens using blockchain transactions.`);
+    if (item.id === 1) {
+      window.location.href = '/premium-dashboard.html';
+    } else {
+      // This would be replaced with actual purchase logic for other items
+      console.log(`Purchasing ${item.title}...`);
+      alert(`This would initiate the purchase of ${item.title} for ${item.price} SYNC tokens using blockchain transactions.`);
+    }
   };
 
   return (
@@ -107,7 +111,7 @@ function Marketplace() {
                     onClick={() => purchaseItem(item)}
                     className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition duration-300"
                   >
-                    Purchase
+                    {item.id === 1 ? 'Access Dashboard' : 'Purchase'}
                   </button>
                 </div>
               </div>

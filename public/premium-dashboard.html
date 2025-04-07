@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeSync Premium Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/apexcharts@3.35.3/dist/apexcharts.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.3/dist/apexcharts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --secondary: #10B981;
+            --accent: #7C3AED;
+            --dark: #1E293B;
+            --light: #F8FAFC;
+            --gray: #94A3B8;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #F1F5F9;
+            color: var(--dark);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        }
+
+        .gradient-accent {
+            background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card {
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 30%;
+            background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.2));
+            transform: skewX(-15deg) translateX(10px);
+        }
+
+        .chart-container {
+            height: 300px;
+            width: 100%;
+        }
+
+        .progress-ring-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .progress-ring-circle-bg {
+            fill: none;
+            stroke: #E2E8F0;
+            stroke-width: 8;
+        }
+
+        .progress-ring-circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            padding: 3px 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+        }
+
+        .pill-progress {
+            height: 10px;
+            border-radius: 10px;
+            background-color: #E2E8F0;
+            overflow: hidden;
+        }
+
+        .pill-progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+        }
+
+        .premium-tag {
+            background: linear-gradient(45deg, #F59E0B, #F97316);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .custom-tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .custom-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 5px 10px;
+            border-radius: 6px;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s;
+            width: 200px;
+        }
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--dark) transparent transparent transparent;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Animation classes */
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .rotate-center {
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Glowing effect for premium elements */
+        .premium-glow {
+            box-shadow: 0 0 15px rgba(123, 58, 237, 0.3);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .premium-glow:hover {
+            box-shadow: 0 0 20px rgba(123, 58, 237, 0.5);
+        }
+
+        /* Glass morphism effect */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+    </style>
+</head>
+<body class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-lg flex flex-col p-4 transition-all duration-300 ease-in-out">
+        <a href="/" class="flex items-center mb-8">
+            <svg class="h-10 w-10 text-blue-600 mr-2 rotate-center" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            <span class="text-2xl font-bold text-gray-800">Life<span class="text-blue-600">Sync</span></span>
+        </a>
+        <span class="text-xs font-semibold text-gray-400 uppercase mb-2">Main Menu</span>
+        <nav class="flex-grow space-y-2">
+            <a href="#" class="flex items-center px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition duration-200 group">
+                <i class="fas fa-tachometer-alt mr-3 text-lg w-5"></i>
+                <span class="font-medium">Dashboard</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition duration-200 group">
+                <i class="fas fa-tasks mr-3 text-lg w-5 text-gray-400 group-hover:text-blue-500"></i>
+                <span class="font-medium">Goals & Tasks</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition duration-200 group">
+                <i class="fas fa-heartbeat mr-3 text-lg w-5 text-gray-400 group-hover:text-green-500"></i>
+                <span class="font-medium">Wellness</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition duration-200 group">
+                <i class="fas fa-wallet mr-3 text-lg w-5 text-gray-400 group-hover:text-indigo-500"></i>
+                <span class="font-medium">Finance</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition duration-200 group">
+                <i class="fas fa-chart-line mr-3 text-lg w-5 text-gray-400 group-hover:text-yellow-500"></i>
+                <span class="font-medium">Analytics</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition duration-200 group">
+                <i class="fas fa-store mr-3 text-lg w-5 text-gray-400 group-hover:text-purple-500"></i>
+                <span class="font-medium">Marketplace</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition duration-200 group">
+                <i class="fas fa-users mr-3 text-lg w-5 text-gray-400 group-hover:text-pink-500"></i>
+                <span class="font-medium">Community</span>
+            </a>
+        </nav>
+        
+        <div class="mt-auto border-t pt-4">
+            <span class="text-xs font-semibold text-gray-400 uppercase mb-2 block">Account</span>
+            <a href="#" class="flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition duration-200 group">
+                <i class="fas fa-cog mr-3 text-lg w-5 text-gray-400 group-hover:text-gray-600"></i>
+                <span class="font-medium">Settings</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-red-600 transition duration-200 group">
+                <i class="fas fa-sign-out-alt mr-3 text-lg w-5 text-gray-400 group-hover:text-red-500"></i>
+                <span class="font-medium">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Premium Dashboard</h1>
+                <p class="text-gray-500">Welcome back, Alex Johnson! Here's your personalized overview.</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="relative p-2 rounded-full hover:bg-gray-200 transition duration-200">
+                    <i class="fas fa-bell text-xl text-gray-500"></i>
+                    <span class="notification-badge animate-pulse">3</span>
+                </button>
+                <div class="relative">
+                    <img src="https://i.pravatar.cc/150?img=3" alt="User Avatar" class="h-10 w-10 rounded-full border-2 border-blue-500">
+                    <span class="absolute bottom-0 right-0 block h-3 w-3 rounded-full ring-2 ring-white bg-green-400"></span>
+                </div>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 shadow-md flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Quick Add
+                </button>
+            </div>
+        </header>
+
+        <!-- Stat Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium opacity-80">Total SYNC Earned</span>
+                    <i class="fas fa-coins text-2xl opacity-60"></i>
+                </div>
+                <div class="mt-2">
+                    <span class="text-3xl font-bold">12,850</span>
+                    <span class="text-sm ml-1 opacity-80">SYNC</span>
+                </div>
+                <div class="text-sm mt-1 opacity-80 flex items-center">
+                    <i class="fas fa-arrow-up mr-1 text-green-300"></i>
+                    <span>15% this month</span>
+                </div>
+            </div>
+            <div class="stat-card bg-gradient-to-r from-green-500 to-green-600 text-white p-6">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium opacity-80">Wellness Score</span>
+                    <i class="fas fa-heartbeat text-2xl opacity-60"></i>
+                </div>
+                <div class="mt-2">
+                    <span class="text-3xl font-bold">85</span>
+                    <span class="text-sm ml-1 opacity-80">/ 100</span>
+                </div>
+                <div class="text-sm mt-1 opacity-80 flex items-center">
+                    <i class="fas fa-arrow-up mr-1 text-blue-300"></i>
+                    <span>+5 points today</span>
+                </div>
+            </div>
+            <div class="stat-card bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium opacity-80">Productivity Level</span>
+                    <i class="fas fa-rocket text-2xl opacity-60"></i>
+                </div>
+                <div class="mt-2">
+                    <span class="text-3xl font-bold">High</span>
+                </div>
+                <div class="text-sm mt-1 opacity-80 flex items-center">
+                    <i class="fas fa-check-circle mr-1 text-green-300"></i>
+                    <span>3 Focus Tasks Completed</span>
+                </div>
+            </div>
+            <div class="stat-card bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-6">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium opacity-80">Financial Health</span>
+                    <i class="fas fa-piggy-bank text-2xl opacity-60"></i>
+                </div>
+                <div class="mt-2">
+                    <span class="text-3xl font-bold">Stable</span>
+                </div>
+                <div class="text-sm mt-1 opacity-80 flex items-center">
+                    <i class="fas fa-info-circle mr-1 text-blue-300 custom-tooltip"></i>
+                    <span>Budget 85% Utilized</span>
+                    <span class="tooltip-text">You're on track with your budget this month. Keep it up!</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Left Column -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- AI Insights Card -->
+                <div class="dashboard-card p-6 fade-in">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-700 flex items-center"><i class="fas fa-brain mr-2 text-blue-500"></i>AI-Powered Insights</h2>
+                        <span class="premium-tag">Premium Feature</span>
+                    </div>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-md mb-4">
+                        <p><strong class="font-medium">Focus Suggestion:</strong> Based on your energy levels, tackle the 'Project Phoenix Report' between 10 AM - 12 PM for optimal productivity.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-3 rounded-md">
+                            <strong class="font-medium block text-sm">Wellness Tip:</strong>
+                            <p class="text-sm">Consider a 15-min walk after lunch. It can boost afternoon focus by 20%.</p>
+                        </div>
+                        <div class="bg-indigo-50 border-l-4 border-indigo-500 text-indigo-700 p-3 rounded-md">
+                            <strong class="font-medium block text-sm">Financial Nudge:</strong>
+                            <p class="text-sm">You're close to your 'Dining Out' budget. Maybe try a home-cooked meal tonight?</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overall Progress Chart -->
+                <div class="dashboard-card p-6 fade-in" style="animation-delay: 0.1s;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-700"><i class="fas fa-chart-pie mr-2 text-purple-500"></i>Overall Progress</h2>
+                        <select class="text-sm border rounded px-2 py-1">
+                            <option>This Week</option>
+                            <option>This Month</option>
+                            <option>This Year</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="overallProgressChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Activity Feed -->
+                <div class="dashboard-card p-6 fade-in" style="animation-delay: 0.2s;">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4"><i class="fas fa-stream mr-2 text-gray-500"></i>Recent Activity</h2>
+                    <div class="space-y-4 max-h-60 overflow-y-auto pr-2">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-dumbbell text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium">Completed 'Morning Workout' goal.</p>
+                                <span class="text-xs text-gray-500">15 minutes ago</span>
+                            </div>
+                            <span class="ml-auto text-sm font-semibold text-green-600">+10 SYNC</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-check text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium">Marked 'Submit Expense Report' task as done.</p>
+                                <span class="text-xs text-gray-500">1 hour ago</span>
+                            </div>
+                            <span class="ml-auto text-sm font-semibold text-blue-600">+5 SYNC</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-coins text-yellow-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium">Redeemed 500 SYNC for Marketplace item.</p>
+                                <span class="text-xs text-gray-500">3 hours ago</span>
+                            </div>
+                        </div>
+                         <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-users text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium">Joined 'Mindfulness Challenge' in Community.</p>
+                                <span class="text-xs text-gray-500">Yesterday</span>
+                            </div>
+                        </div>
+                         <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-piggy-bank text-indigo-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium">Met 'Weekly Savings Goal'.</p>
+                                <span class="text-xs text-gray-500">Yesterday</span>
+                            </div>
+                            <span class="ml-auto text-sm font-semibold text-indigo-600">+25 SYNC</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-6">
+                <!-- Goals Overview -->
+                <div class="dashboard-card p-6 fade-in" style="animation-delay: 0.05s;">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4"><i class="fas fa-bullseye mr-2 text-red-500"></i>Today's Goals</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-medium">Complete Project Phoenix Report</span>
+                                <span class="text-xs font-semibold text-blue-600">Productivity</span>
+                            </div>
+                            <div class="pill-progress">
+                                <div class="pill-progress-bar bg-blue-500" style="width: 75%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-medium">30-min Cardio Workout</span>
+                                <span class="text-xs font-semibold text-green-600">Wellness</span>
+                            </div>
+                            <div class="pill-progress">
+                                <div class="pill-progress-bar bg-green-500" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-medium">Track Daily Expenses</span>
+                                <span class="text-xs font-semibold text-indigo-600">Finance</span>
+                            </div>
+                            <div class="pill-progress">
+                                <div class="pill-progress-bar bg-indigo-500" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <button class="w-full text-sm text-blue-600 font-medium hover:underline mt-2">View All Goals</button>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="dashboard-card p-6 fade-in" style="animation-delay: 0.15s;">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4"><i class="fas fa-bolt mr-2 text-yellow-500"></i>Quick Actions</h2>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="flex flex-col items-center p-3 bg-gray-100 hover:bg-blue-100 rounded-lg transition duration-200">
+                            <i class="fas fa-plus-circle text-2xl text-blue-500 mb-1"></i>
+                            <span class="text-xs font-medium text-gray-700">Add Task</span>
+                        </button>
+                        <button class="flex flex-col items-center p-3 bg-gray-100 hover:bg-green-100 rounded-lg transition duration-200">
+                            <i class="fas fa-running text-2xl text-green-500 mb-1"></i>
+                            <span class="text-xs font-medium text-gray-700">Log Workout</span>
+                        </button>
+                        <button class="flex flex-col items-center p-3 bg-gray-100 hover:bg-indigo-100 rounded-lg transition duration-200">
+                            <i class="fas fa-dollar-sign text-2xl text-indigo-500 mb-1"></i>
+                            <span class="text-xs font-medium text-gray-700">Log Expense</span>
+                        </button>
+                        <button class="flex flex-col items-center p-3 bg-gray-100 hover:bg-purple-100 rounded-lg transition duration-200">
+                            <i class="fas fa-calendar-alt text-2xl text-purple-500 mb-1"></i>
+                            <span class="text-xs font-medium text-gray-700">View Calendar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Life Area Scores -->
+                <div class="dashboard-card p-6 fade-in premium-glow" style="animation-delay: 0.25s;">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4"><i class="fas fa-star mr-2 text-accent"></i>Life Area Scores <span class="premium-tag ml-2">Premium</span></h2>
+                    <div class="flex justify-around items-center">
+                        <div class="text-center">
+                            <div class="progress-ring-container mx-auto mb-2">
+                                <svg class="progress-ring" width="100%" height="100%">
+                                    <circle class="progress-ring-circle-bg" cx="60" cy="60" r="50"></circle>
+                                    <circle id="wellness-ring" class="progress-ring-circle stroke-current text-green-500" cx="60" cy="60" r="50"></circle>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl font-bold text-green-600" id="wellness-score">85</span>
+                                </div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-600">Wellness</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="progress-ring-container mx-auto mb-2">
+                                <svg class="progress-ring" width="100%" height="100%">
+                                    <circle class="progress-ring-circle-bg" cx="60" cy="60" r="50"></circle>
+                                    <circle id="finance-ring" class="progress-ring-circle stroke-current text-indigo-500" cx="60" cy="60" r="50"></circle>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl font-bold text-indigo-600" id="finance-score">72</span>
+                                </div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-600">Finance</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="text-center mt-12 text-sm text-gray-500">
+            &copy; 2024 LifeSync. All rights reserved. | 
+            <a href="#" class="hover:text-blue-600">Privacy Policy</a> | 
+            <a href="#" class="hover:text-blue-600">Terms of Service</a>
+        </footer>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Chart.js: Overall Progress Chart (Example Radar Chart)
+            const ctx = document.getElementById('overallProgressChart').getContext('2d');
+            const overallProgressChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Productivity', 'Wellness', 'Finance', 'Community', 'Personal Growth'],
+                    datasets: [{
+                        label: 'Current Score',
+                        data: [75, 85, 72, 65, 80],
+                        fill: true,
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        pointBackgroundColor: 'rgb(59, 130, 246)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(59, 130, 246)'
+                    }, {
+                        label: 'Target Score',
+                        data: [85, 90, 80, 75, 90],
+                        fill: true,
+                        backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                        borderColor: 'rgb(124, 58, 237)',
+                        pointBackgroundColor: 'rgb(124, 58, 237)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(124, 58, 237)'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    elements: {
+                        line: {
+                            borderWidth: 2
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { display: false },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            pointLabels: {
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            ticks: {
+                                backdropColor: 'transparent', // Hide default ticks
+                                stepSize: 20 // Set tick step
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Progress Ring function
+            function setProgress(ringId, scoreId, score) {
+                const ring = document.getElementById(ringId);
+                const scoreText = document.getElementById(scoreId);
+                if (!ring || !scoreText) return;
+                
+                const radius = ring.r.baseVal.value;
+                const circumference = 2 * Math.PI * radius;
+                
+                ring.style.strokeDasharray = `${circumference} ${circumference}`;
+                const offset = circumference - (score / 100) * circumference;
+                ring.style.strokeDashoffset = offset;
+                
+                // Animate score text
+                let currentScore = 0;
+                const interval = setInterval(() => {
+                    currentScore++;
+                    scoreText.textContent = currentScore;
+                    if (currentScore >= score) {
+                        clearInterval(interval);
+                    }
+                }, 10);
+            }
+
+            // Set initial progress ring values
+            setProgress('wellness-ring', 'wellness-score', 85);
+            setProgress('finance-ring', 'finance-score', 72);
+            
+            console.log("LifeSync Premium Dashboard Initialized!");
+        });
+    </script>
+</body>
+</html> 
