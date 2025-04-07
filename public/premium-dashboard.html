@@ -248,11 +248,42 @@
             -webkit-backdrop-filter: blur(4px);
             border: 1px solid rgba(255, 255, 255, 0.18);
         }
+
+        /* Sidebar Styles */
+        .sidebar {
+            transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+            /* Add other base sidebar styles if needed */
+        }
+        
+        .sidebar-hidden {
+            transform: translateX(-100%);
+            width: 0; /* Collapse width */
+            padding: 0; /* Remove padding when hidden */
+            overflow: hidden; /* Hide content when collapsing */
+        }
+        
+        #sidebar-toggle {
+            /* Base styles for the button */
+            z-index: 20; /* Ensure it's clickable */
+        }
+        
+        @media (min-width: 1024px) { /* lg breakpoint */
+            .sidebar-hidden {
+                 transform: translateX(0); /* Don't translate on large screens */
+                 /* Adjust width/padding as needed if you want a collapsed state on lg */
+             }
+             /* Optionally hide toggle button on large screens if sidebar is always visible */
+             /* #sidebar-toggle { display: none; } */
+        }
+        
+        /* Main content adjustment (optional, depends on layout) */
+        /* main.sidebar-open { margin-left: 16rem; } */
+        /* main.sidebar-closed { margin-left: 0; } */
     </style>
 </head>
-<body class="flex h-screen">
+<body class="flex h-screen bg-gray-100">
     <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow-lg flex flex-col p-4 transition-all duration-300 ease-in-out">
+    <aside id="sidebar" class="sidebar w-64 bg-white shadow-lg flex flex-col p-4 transition-all duration-300 ease-in-out">
         <a href="/" class="flex items-center mb-8">
             <svg class="h-10 w-10 text-blue-600 mr-2 rotate-center" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
@@ -305,26 +336,31 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto p-8">
-        <!-- Header -->
-        <header class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-800">Premium Dashboard</h1>
-                <p class="text-gray-500">Welcome back, Alex Johnson! Here's your personalized overview.</p>
+    <main class="relative flex-1 overflow-y-auto p-6 md:p-8">
+        <!-- Profile Icon - Absolutely Positioned -->
+        <div class="absolute top-6 right-6 md:top-8 md:right-8 z-10">
+            <div class="relative">
+                <img src="https://i.pravatar.cc/150?img=3" alt="User Avatar" class="h-10 w-10 rounded-full border-2 border-blue-500 shadow-md">
+                <span class="absolute bottom-0 right-0 block h-3 w-3 rounded-full ring-2 ring-white bg-green-400"></span>
             </div>
-            <div class="flex items-center space-x-4">
-                <button class="relative p-2 rounded-full hover:bg-gray-200 transition duration-200">
-                    <i class="fas fa-bell text-xl text-gray-500"></i>
-                    <span class="notification-badge animate-pulse">3</span>
+        </div>
+
+        <!-- Responsive Header -->
+        <header class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 space-y-4 md:space-y-0">
+            <!-- Left Side: Hamburger + Title Block -->
+            <div class="flex items-center flex-grow flex-shrink min-w-0">
+                <button id="sidebar-toggle" class="lg:hidden mr-4 p-2 rounded-md text-gray-500 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+                    <i class="fas fa-bars text-xl"></i>
                 </button>
-                <div class="relative">
-                    <img src="https://i.pravatar.cc/150?img=3" alt="User Avatar" class="h-10 w-10 rounded-full border-2 border-blue-500">
-                    <span class="absolute bottom-0 right-0 block h-3 w-3 rounded-full ring-2 ring-white bg-green-400"></span>
+                <div class="min-w-0 max-w-sm">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 truncate">Premium Dashboard</h1>
+                    <p class="text-sm md:text-base text-gray-500 mt-1 truncate">Welcome back, Alex Johnson!</p>
                 </div>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 shadow-md flex items-center">
-                    <i class="fas fa-plus mr-2"></i> Quick Add
-                </button>
             </div>
+            
+            <!-- Right Side: Spacer Div to reserve space -->
+            <div class="hidden md:block md:w-16 flex-shrink-0"></div>
+            
         </header>
 
         <!-- Stat Cards -->
@@ -677,7 +713,30 @@
             setProgress('wellness-ring', 'wellness-score', 85);
             setProgress('finance-ring', 'finance-score', 72);
             
-            console.log("LifeSync Premium Dashboard Initialized!");
+            // Sidebar Toggle Logic
+            const sidebar = document.getElementById('sidebar');
+            const toggleButton = document.getElementById('sidebar-toggle');
+
+            if (toggleButton && sidebar) {
+                toggleButton.addEventListener('click', () => {
+                    sidebar.classList.toggle('sidebar-hidden');
+                });
+            }
+
+            // Initialize sidebar state based on screen size (optional)
+            function checkSidebarState() {
+                if (window.innerWidth < 1024) { // lg breakpoint
+                    sidebar.classList.add('sidebar-hidden');
+                } else {
+                    sidebar.classList.remove('sidebar-hidden');
+                }
+            }
+            // Initial check
+            checkSidebarState(); 
+            // Add resize listener if you want it to auto-hide/show on resize
+            window.addEventListener('resize', checkSidebarState);
+
+            console.log("LifeSync Premium Dashboard Initialized with Sidebar Toggle!");
         });
     </script>
 </body>
