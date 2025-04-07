@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 function Marketplace() {
   const [activeCategory, setActiveCategory] = useState('all');
+  const sectionRef = useRef(null);
   
   const categories = [
     { id: 'all', name: 'All Items' },
@@ -62,6 +63,31 @@ function Marketplace() {
     },
   ];
   
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('scale-up-active');
+            // observer.unobserve(entry.target); // Optional: Keep animating if needed
+          }
+        });
+      },
+      { threshold: 0.05 } // Trigger slightly earlier
+    );
+
+    const elementsToAnimate = sectionRef.current.querySelectorAll('.marketplace-item');
+    elementsToAnimate.forEach((el) => {
+      observer.observe(el);
+    });
+
+    return () => {
+      elementsToAnimate.forEach((el) => {
+        observer.unobserve(el);
+      });
+    };
+  }, [activeCategory]); // Re-run observer setup if category changes, animating new items
+
   const filteredItems = activeCategory === 'all' 
     ? marketplaceItems 
     : marketplaceItems.filter(item => item.category === activeCategory);
@@ -77,7 +103,7 @@ function Marketplace() {
   };
 
   return (
-    <section id="marketplace" className="py-20 bg-white">
+    <section id="marketplace" className="py-20 bg-white overflow-hidden" ref={sectionRef}>
       <div className="container mx-auto px-6">
         <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">SYNC Token Marketplace</h2>
         <p className="text-xl text-gray-600 mb-12 text-center max-w-3xl mx-auto">
@@ -99,8 +125,11 @@ function Marketplace() {
         
         {/* Marketplace Items Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredItems.map(item => (
-            <div key={item.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition duration-300 border border-gray-200">
+          {filteredItems.map((item, index) => (
+            <div 
+              key={item.id} 
+              className={`marketplace-item animate-scale-up delay-${index * 100} bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition duration-300 border border-gray-200`}
+            >
               <img src={item.image} alt={item.title} className="w-full h-48 object-cover" />
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-2">{item.title}</h3>

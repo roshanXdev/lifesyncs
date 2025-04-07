@@ -1,8 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 function TokenRewards() {
   const [syncBalance] = useState(250); // Mock balance for demo
   const [isConnected, setIsConnected] = useState(false);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('fade-slide-up-active');
+            // Optionally unobserve after animation
+            // observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 } // Trigger when 10% of the element is visible
+    );
+
+    const elementsToAnimate = sectionRef.current.querySelectorAll('.animate-on-scroll');
+    elementsToAnimate.forEach((el) => {
+      observer.observe(el);
+    });
+
+    // Cleanup observer on component unmount
+    return () => {
+      elementsToAnimate.forEach((el) => {
+        observer.unobserve(el);
+      });
+    };
+  }, []);
 
   const connectWallet = () => {
     // This would be replaced with actual Web3 wallet connection logic
@@ -16,18 +44,42 @@ function TokenRewards() {
     alert('Staking functionality would be implemented with a real blockchain connection');
   };
 
+  const howToEarnItems = [
+    {
+      id: 1,
+      title: 'Complete Daily Goals',
+      description: 'Earn tokens by achieving your personalized daily goals and tasks recommended by our AI.',
+    },
+    {
+      id: 2,
+      title: 'Engage with Community',
+      description: 'Share insights, participate in challenges, and help others to earn additional rewards.',
+    },
+    {
+      id: 3,
+      title: 'Provide Data Insights',
+      description: 'Opt-in to share anonymized data to improve our AI recommendations and earn bonus tokens.',
+    },
+    {
+      id: 4,
+      title: 'Stake for Governance',
+      description: 'Stake your tokens to participate in platform governance and earn staking rewards.',
+    },
+  ];
+
   return (
-    <section id="tokenized-rewards" className="py-20 bg-gray-900 text-white">
+    <section id="tokenized-rewards" className="py-20 bg-gray-900 text-white overflow-hidden" ref={sectionRef}>
       <div className="container mx-auto px-6">
         <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">Tokenized Rewards System</h2>
         <p className="text-xl text-gray-300 mb-12 text-center max-w-3xl mx-auto">
           Earn SYNC tokens for achieving goals and engaging with the platform. Use them for premium features or exchange them in our marketplace.
         </p>
 
-        <div className="flex flex-col lg:flex-row items-center justify-between">
-          <div className="lg:w-1/2 mb-12 lg:mb-0">
-            <div className="bg-gray-800 rounded-xl p-8 max-w-md mx-auto">
-              <h3 className="text-2xl font-bold mb-6">Your SYNC Token Balance</h3>
+        <div className="flex flex-col lg:flex-row items-start lg:items-center gap-12">
+          {/* Left Side: Wallet Balance - Adjusted Width */}
+          <div className="lg:w-7/12 w-full animate-on-scroll">
+            <div className="bg-gray-800 rounded-xl p-8 max-w-lg mx-auto"> {/* Increased max-w slightly */}
+              <h3 className="text-2xl font-bold mb-6 text-center">Your SYNC Token Balance</h3>
               
               {isConnected ? (
                 <>
@@ -84,48 +136,21 @@ function TokenRewards() {
             </div>
           </div>
           
-          <div className="lg:w-1/2">
+          {/* Right Side: How to Earn - Adjusted Width */}
+          <div className="lg:w-5/12 w-full">
             <h3 className="text-2xl font-bold mb-6">How to Earn SYNC Tokens</h3>
             <div className="space-y-6">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 h-6 w-6 rounded-full bg-blue-900 flex items-center justify-center">
-                  <span className="text-blue-300 text-xs font-bold">1</span>
+              {howToEarnItems.map((item, index) => (
+                <div key={item.id} className={`flex items-start animate-on-scroll delay-${index * 100}`}>
+                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-blue-900 flex items-center justify-center mt-1">
+                    <span className="text-blue-300 text-xs font-bold">{item.id}</span>
+                  </div>
+                  <div className="ml-4">
+                    <h4 className="text-xl font-medium text-blue-300">{item.title}</h4>
+                    <p className="mt-2 text-gray-400">{item.description}</p>
+                  </div>
                 </div>
-                <div className="ml-4">
-                  <h4 className="text-xl font-medium text-blue-300">Complete Daily Goals</h4>
-                  <p className="mt-2 text-gray-400">Earn tokens by achieving your personalized daily goals and tasks recommended by our AI.</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="flex-shrink-0 h-6 w-6 rounded-full bg-blue-900 flex items-center justify-center">
-                  <span className="text-blue-300 text-xs font-bold">2</span>
-                </div>
-                <div className="ml-4">
-                  <h4 className="text-xl font-medium text-blue-300">Engage with Community</h4>
-                  <p className="mt-2 text-gray-400">Share insights, participate in challenges, and help others to earn additional rewards.</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="flex-shrink-0 h-6 w-6 rounded-full bg-blue-900 flex items-center justify-center">
-                  <span className="text-blue-300 text-xs font-bold">3</span>
-                </div>
-                <div className="ml-4">
-                  <h4 className="text-xl font-medium text-blue-300">Provide Data Insights</h4>
-                  <p className="mt-2 text-gray-400">Opt-in to share anonymized data to improve our AI recommendations and earn bonus tokens.</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="flex-shrink-0 h-6 w-6 rounded-full bg-blue-900 flex items-center justify-center">
-                  <span className="text-blue-300 text-xs font-bold">4</span>
-                </div>
-                <div className="ml-4">
-                  <h4 className="text-xl font-medium text-blue-300">Stake for Governance</h4>
-                  <p className="mt-2 text-gray-400">Stake your tokens to participate in platform governance and earn staking rewards.</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
